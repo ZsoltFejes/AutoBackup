@@ -21,22 +21,33 @@ func main() {
 		log.Fatalf("Missing required --source parameter")
 	}
 
-	// Checks if destination was specified, if not source directory name will be used as base of destination file
-	if len(*destination) == 0 {
-		s := strings.Split(*source, `/`) // Linux
-		if len(s) == 1 {
-			s = strings.Split(*source, `\`) // Windows
-		}
-		*destination = s[len(s)-2]
+	// Check if source is a directory
+	fileInfo, err := os.Stat(*source)
+	if err != nil {
+		log.Fatalln("There was an error checking the source directory\n" + err.Error())
+	}
+	if !fileInfo.IsDir() {
+		log.Fatalf("%s is not a directory", *source)
 	}
 
-	// Adding timestamp to destination filename
+	// Get the source directory name
+	s := strings.Split(*source, `/`) // Linux
+	if len(s) == 1 {
+		s = strings.Split(*source, `\`) // Windows
+	}
+	sourceDirectoryName := s[len(s)-2]
+
+	// Generating a string of timestamp
 	now := time.Now().Format("2006_01_02_15_04_00")
-	if strings.HasSuffix(*destination, ".zip") {
+
+	// Checks if destination was specified, if not, source directory name will be used as base of destination file name
+	if len(*destination) == 0 {
+		*destination = sourceDirectoryName + "&" + now + ".zip"
+	} else if strings.HasSuffix(*destination, ".zip") {
 		*destination = strings.TrimSuffix(*destination, ".zip")
 		*destination = *destination + "&" + now + ".zip"
-	} else {
-		*destination = *destination + "&" + now + ".zip"
+	} else if !strings.HasSuffix(*destination, ".zip") {
+		*destination = *destination + "/" + sourceDirectoryName + "&" + now + ".zip"
 	}
 
 	// Creating archive file
