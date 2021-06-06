@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	destination := flag.String("destination", "", "Specify destination path and file name for the archive, make sure to include the extention (.zip) in the file name")
+	destination := flag.String("destination", "", "Specify destination directory and/or filename for the archive. If you don't specify the name of the destination, source directory's name will be used")
 	source := flag.String("source", "", "Specify the path to the directory you want to archive")
 	flag.Parse()
 
