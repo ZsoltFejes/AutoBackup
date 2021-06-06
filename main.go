@@ -71,7 +71,7 @@ func main() {
 			return nil
 		}
 
-		// Opening source file
+		// Opens source file
 		file, err := os.Open(path)
 		if err != nil {
 			log.Printf("Unable to open file: %s\n", path)
@@ -99,7 +99,7 @@ func main() {
 		return nil
 	}
 
-	// Walk through all files inside specified source directory including all sub directories
+	// Walk through all files inside of specified source directory including all sub directories
 	err = filepath.Walk(*source, walker)
 	if err != nil {
 		panic(err)
