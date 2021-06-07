@@ -21,7 +21,6 @@ var (
 )
 
 func splitPath(path string) []string {
-	// Get the source directory name
 	s := strings.Split(path, `/`) // Linux
 	if len(s) == 1 {
 		s = strings.Split(path, `\`) // Windows
@@ -61,9 +60,9 @@ func runChecks() {
 	timeFormat := "2006_01_02T15_04"
 	now := time.Now().Format(timeFormat)
 
-	// Check if destination was specified, if no the name of the destination will be the same as the source's directory name also the destination will be the current directory
+	// If destination is not specified the name of the archive will be the same as the source's directory name, and the archive will be saved in the current directory
 	// If .zip extention is used then that name will be used to generate the archive
-	// If directory is specified as destnation the name of the source will be used as the name of the archive and will be saved to the specified destination directory
+	// If directory is specified as destination the name of the source directory will be used as the name of the archive, and will be saved to the specified destination directory
 	if len(destination) == 0 {
 		archiveNameBase = sourceDirectoryName
 		destination = archiveNameBase + "&" + now + ".zip"
@@ -89,7 +88,7 @@ func runChecks() {
 		log.Fatal(err)
 	}
 
-	// Check each file in destnation directory. If the file name matches the new archive's base name the last modified timestamp of it will  be stored.
+	// Check each file in destnation directory. If the file name matches the new archive's base name the last modified timestamp of it will be stored.
 	for _, fileInfo := range files {
 		archiveFound, err := filepath.Match(archiveNameBase+"*", fileInfo.Name())
 		if err != nil {
@@ -128,7 +127,7 @@ func runChecks() {
 		return nil
 	}
 
-	// Go through and check each file in source if archive is needed
+	// Check if there are any older files in the source directory than the newest archive
 	err = filepath.Walk(source, sourceWalker)
 	if err != nil {
 		panic(err)
@@ -146,7 +145,6 @@ func archiveWalker(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 
-	// Opens source file
 	file, err := os.Open(path)
 	if err != nil {
 		log.Printf("Unable to open file: %s\n", path)
@@ -157,7 +155,6 @@ func archiveWalker(path string, info os.FileInfo, err error) error {
 	// Converting from path to zip-root relative path
 	path = strings.TrimPrefix(path, source)
 
-	// Creating file in archive
 	f, err := w.Create(path)
 	if err != nil {
 		log.Printf("There was an error creating file in archive: %s\n", path)
