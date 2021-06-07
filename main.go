@@ -20,6 +20,15 @@ var (
 	archiveNeeded = false
 )
 
+func splitPath(path string) []string {
+	// Get the source directory name
+	s := strings.Split(path, `/`) // Linux
+	if len(s) == 1 {
+		s = strings.Split(path, `\`) // Windows
+	}
+	return s
+}
+
 func isDirectory(path string) {
 	// Check if source is a directory
 	fileInfo, err := os.Stat(path)
@@ -42,15 +51,11 @@ func runChecks() {
 		log.Fatalf("Missing required --source parameter")
 	}
 
+	s := splitPath(source)
+	sourceDirectoryName := s[len(s)-2]
+
 	// Check and make sure source is a directory, script curently doesn't support single file to be archived
 	isDirectory(source)
-
-	// Get the source directory name
-	s := strings.Split(source, `/`) // Linux
-	if len(s) == 1 {
-		s = strings.Split(source, `\`) // Windows
-	}
-	sourceDirectoryName := s[len(s)-2]
 
 	// Generating a string of timestamp
 	timeFormat := "2006_01_02T15_04"
@@ -63,8 +68,10 @@ func runChecks() {
 		archiveNameBase = sourceDirectoryName
 		destination = archiveNameBase + "&" + now + ".zip"
 	} else if strings.HasSuffix(destination, ".zip") {
-		archiveNameBase = strings.TrimSuffix(destination, ".zip")
-		destination = archiveNameBase + "&" + now + ".zip"
+		destination = strings.TrimSuffix(destination, ".zip")
+		s := splitPath(destination)
+		archiveNameBase = s[len(s)-1]
+		destination = destination + "&" + now + ".zip"
 	} else if !strings.HasSuffix(destination, ".zip") {
 		isDirectory(destination)
 		if runtime.GOOS == "windows" {
